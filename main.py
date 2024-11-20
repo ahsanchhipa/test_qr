@@ -25,7 +25,7 @@ def generate_qr_code(data):
     img = qr.make_image(fill="black", back_color="white")
     return img
 
-# Function to send labels to Zebra printer
+# Function to send labels to Zebra printer (using win32print)
 def print_to_zebra(csv_file, label_width, label_height, selected_fields, printer_name):
     csv_file.seek(0)
     csv_content = csv_file.read().decode("utf-8")
@@ -33,8 +33,9 @@ def print_to_zebra(csv_file, label_width, label_height, selected_fields, printer
 
     # Set up Zebra printer connection (only for Windows)
     if platform.system() == "Windows":
-        import zebra
-        zebra_printer = zebra.Zebra(printer_name)
+        printer_handle = win32print.OpenPrinter(printer_name)
+        printer_info = win32print.GetPrinter(printer_handle, 2)
+        printer_port = printer_info["pPort"]
 
         # ZPL (Zebra Programming Language) template for label printing
         for row in csv_reader:
@@ -50,7 +51,13 @@ def print_to_zebra(csv_file, label_width, label_height, selected_fields, printer
             ^FO130,10^A0N,30,30^FD{" | ".join([f"{field}: {row.get(field, 'N/A')}" for field in selected_fields])}^FS
             ^XZ
             """
-            zebra_printer.output(zpl)
+            # Send ZPL command to the printer (this sends raw text to the printer)
+            win32print.StartDocPrinter(printer_handle, 1, ("QR Label", None, "RAW"))
+            win32print.StartPagePrinter(printer_handle)
+            win32print.WritePrinter(printer_handle, zpl.encode("utf-8"))
+            win32print.EndPagePrinter(printer_handle)
+            win32print.EndDocPrinter(printer_handle)
+
             os.remove(qr_img_path)
 
         st.success(f"Labels sent to {printer_name} Zebra printer.")
