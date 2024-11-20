@@ -7,6 +7,7 @@ from reportlab.lib.units import cm
 import qrcode
 import os
 import platform
+import pandas as pd
 
 # Windows specific libraries to interact with printers
 if platform.system() == "Windows":
@@ -139,9 +140,10 @@ uploaded_csv = st.file_uploader("Upload CSV File", type=["csv"])
 if uploaded_csv is not None:
     try:
         st.success("CSV uploaded successfully. Processing...")
-        csv_content = uploaded_csv.read().decode("utf-8")
-        csv_reader = csv.DictReader(StringIO(csv_content))
-        fieldnames = csv_reader.fieldnames
+        # Using pandas to read the CSV for easier manipulation
+        df = pd.read_csv(uploaded_csv)
+
+        fieldnames = df.columns.tolist()
 
         selected_fields = st.multiselect("Select fields to display", fieldnames, default=fieldnames)
 
