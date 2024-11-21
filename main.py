@@ -35,8 +35,8 @@ def create_pdf_with_qr_from_csv(csv_file, label_width, label_height, selected_fi
     csv_content = csv_file.read().decode("utf-8")
     csv_reader = csv.DictReader(StringIO(csv_content))
 
-    qr_size = 1.5 * cm  # QR code size
-    padding = 0.2 * cm  # Padding between elements
+    qr_size = 1 * cm  # QR code size
+    padding = 0.07 * cm  # Padding between elements
 
     # Process each row
     for row in csv_reader:
@@ -58,7 +58,7 @@ def create_pdf_with_qr_from_csv(csv_file, label_width, label_height, selected_fi
 
         # Add selected fields as text
         text_x = qr_x + qr_size + padding
-        text_y = label_height - padding - 0.5 * cm  # Start below the top margin
+        text_y = label_height - padding - 0.35 * cm  # Start below the top margin text up and down
 
         c.setFont("Helvetica-Bold", 5.5)  # Adjust font size for label fit
         for idx, field in enumerate(selected_fields):
@@ -85,7 +85,7 @@ uploaded_csv = st.file_uploader("Upload CSV File", type=["csv"])
 
 if uploaded_csv is not None:
     try:
-        st.success("CSV uploaded successfully. Processing...")
+        st.success("CSV uploaded successfully.")
 
         # Read CSV to show field options dynamically
         csv_content = uploaded_csv.read().decode("utf-8")
